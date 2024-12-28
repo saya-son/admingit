@@ -18,8 +18,16 @@ export default function UpdateChapter() {
 
     const fetchChapterDetails = async () => {
         try {
+            // Lấy Bearer Token từ localStorage
+            const token = localStorage.getItem('token');
+
             const response = await axios.get(
-                `http://localhost:8080/public/subject/chapters/${chapterId}`
+                `http://localhost:8080/admin/chapters/${chapterId}`,
+                {
+                    headers: {
+                        'Authorization': `Bearer ${token}`  // Thêm Bearer Token vào header
+                    }
+                }
             );
             setChapter(response.data);
         } catch (error) {
@@ -31,12 +39,20 @@ export default function UpdateChapter() {
     // Hàm xử lý cập nhật chương
     const handleUpdate = async () => {
         try {
+            // Lấy Bearer Token từ localStorage
+            const token = localStorage.getItem('token');
+
             await axios.patch(
-                `http://localhost:8080/public/admin/chapters/${chapterId}`,
-                chapter
+                `http://localhost:8080/admin/chapters/${chapterId}`,
+                chapter,
+                {
+                    headers: {
+                        'Authorization': `Bearer ${token}`  // Thêm Bearer Token vào header
+                    }
+                }
             );
             alert('Cập nhật chương thành công!');
-            navigate('/public/subject/chapters');
+            navigate('/subject/chapters');
         } catch (error) {
             console.error('Lỗi API:', error.response?.data || error.message);
             alert('Không thể cập nhật chương!');
@@ -92,7 +108,7 @@ export default function UpdateChapter() {
                 <button
                     type="button"
                     className="btn btn-secondary mx-2"
-                    onClick={() => navigate('/public/subject/chapters')}
+                    onClick={() => navigate('/subject/chapters')}
                 >
                     Hủy
                 </button>

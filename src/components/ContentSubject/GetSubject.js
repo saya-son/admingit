@@ -1,9 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import axiosGetSubject from '../../Api/userApi';
 import { useNavigate } from 'react-router-dom';
+import Pagination from '../Pagination'; // Đường dẫn tùy theo dự án của bạn
 
 export default function GetSubject() {
-    const [subjects, setSubject] = useState([]);
+    const [subjects, setSubjects] = useState([]);
+    const [currentPage, setCurrentPage] = useState(1); // Trang hiện tại
+    const [itemsPerPage] = useState(5); // Số mục trên mỗi trang
     const navigate = useNavigate();
 
     // Lấy tất cả môn học
@@ -13,15 +16,30 @@ export default function GetSubject() {
 
     // Hàm gọi API để lấy dữ liệu môn học
     const getAllSubject = async () => {
-        const rep = await axiosGetSubject.get("public/subjects");
-        setSubject(rep.data);
+        try {
+            const token = localStorage.getItem('token');  // Lấy token từ localStorage hoặc cookie
+            const rep = await axiosGetSubject.get('public/subjects', {
+                headers: {
+                    'Authorization': `Bearer ${token}`,  // Thêm Bearer Token vào header
+                },
+            });
+            setSubjects(rep.data);
+        } catch (error) {
+            console.error("Error fetching subjects:", error);
+            alert("Không thể tải danh sách môn học!");
+        }
     };
 
     // Hàm xóa môn học
     const deleteSubject = async (subjectId) => {
         try {
-            await axiosGetSubject.delete(`/public/admin/subjects/${subjectId}`);
-            setSubject((prevSubjects) => prevSubjects.filter(subject => subject.subjectId !== subjectId));
+            const token = localStorage.getItem('token');
+            await axiosGetSubject.delete(`/admin/subjects/${subjectId}`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                }
+            });
+            setSubjects((prevSubjects) => prevSubjects.filter(subject => subject.subjectId !== subjectId));
             alert('Môn học đã được xóa thành công!');
         } catch (error) {
             alert('Không thể xóa môn học!');
@@ -30,11 +48,16 @@ export default function GetSubject() {
 
     // Hàm chuyển hướng đến trang chapters với subjectId
     const goToChapters = (subjectId) => {
-        navigate(`/public/subjects/${subjectId}`);
+        navigate(`/subjects/${subjectId}`);
     };
 
+    // Tính toán dữ liệu hiển thị dựa trên trang hiện tại
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    const currentSubjects = subjects.slice(indexOfFirstItem, indexOfLastItem);
+
     // Render danh sách môn học
-    const elementSubject = subjects.map((item) => (
+    const elementSubject = currentSubjects.map((item) => (
         <tr key={item.subjectId}>
             <td>{item.subjectId}</td>
             <td>{item.name}</td>
@@ -54,7 +77,7 @@ export default function GetSubject() {
                 </button>
                 <button
                     className="btn btn-success mx-1"
-                    onClick={() => navigate(`/public/admin/subjects/${item.subjectId}`)}
+                    onClick={() => navigate(`/admin/subjects/${item.subjectId}`)}
                 >
                     Cập nhật
                 </button>
@@ -67,11 +90,11 @@ export default function GetSubject() {
             <h2>Quản lý môn học</h2>
             <button
                 className="btn btn-primary mb-3 float-end"
-                onClick={() => navigate('/public/admin/subjects')}
+                onClick={() => navigate('/admin/subjects')}
             >
                 Thêm môn học
             </button>
-            <table className='table table-bordered'>
+            <table className="table table-bordered">
                 <thead>
                     <tr>
                         <th>Mã môn học</th>
@@ -82,6 +105,11 @@ export default function GetSubject() {
                 </thead>
                 <tbody>{elementSubject}</tbody>
             </table>
+            <Pagination
+                totalPages={Math.ceil(subjects.length / itemsPerPage)}
+                currentPage={currentPage}
+                onPageChange={setCurrentPage}
+            />
         </div>
     );
 }

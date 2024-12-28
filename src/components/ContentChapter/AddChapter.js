@@ -19,9 +19,18 @@ export default function AddChapter() {
                 chapterNumber
             };
 
-            await axios.post('http://localhost:8080/public/admin/chapters', newChapter);
+            // Lấy Bearer Token từ localStorage
+            const token = localStorage.getItem('token');
+
+            // Gửi yêu cầu POST với Bearer Token
+            await axios.post('http://localhost:8080/admin/chapters', newChapter, {
+                headers: {
+                    'Authorization': `Bearer ${token}`, // Thêm Bearer Token vào header
+                },
+            });
+
             alert('Thêm chương thành công!');
-            navigate('/public/subject/chapters');  // Quay lại trang danh sách chương
+            navigate('/subject/chapters');  // Quay lại trang danh sách chương
         } catch (error) {
             console.error('Lỗi khi thêm chương:', error.response?.data || error.message);
             alert('Không thể thêm chương!');
@@ -30,7 +39,7 @@ export default function AddChapter() {
 
     // Hàm quay lại trang danh sách chương
     const handleCancel = () => {
-        navigate('/public/subject/chapters');
+        navigate('/subject/chapters');
     };
 
     return (

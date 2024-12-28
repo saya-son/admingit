@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import axios from '../../Api/userApi'; // Đảm bảo bạn đã định nghĩa đúng trong userApi.js
+import axios from '../Api/userApi';
 import { useNavigate } from 'react-router-dom';
+import '../styles/Login.css';
 
 function Login() {
   const [username, setUserName] = useState('');
@@ -9,16 +10,12 @@ function Login() {
 
   const handleLogin = async () => {
     try {
-      // Gửi yêu cầu đăng nhập
       const response = await axios.post('/auth/login', { username, password });
-      
-      // Lấy dữ liệu từ phản hồi
       const data = response.data;
-      console.log('Dữ liệu trả về từ server:', data);
 
-      if (response.status === 200) { // Kiểm tra mã trạng thái HTTP
-        // Lưu accessToken vào localStorage
+      if (response.status === 200) {
         localStorage.setItem('token', data.accessToken);
+        localStorage.setItem('userId', data.userId); // Lưu userId vào localStorage
         alert('Đăng nhập thành công!');
         navigate('/'); // Điều hướng đến trang quản lý user
       } else {
@@ -31,20 +28,23 @@ function Login() {
   };
 
   return (
-    <div>
+    <div className="login-container">
+      <h2 className="login-header">Đăng nhập</h2>
       <input
+        className="login-input"
         type="text"
-        placeholder="username"
+        placeholder="Tên đăng nhập"
         value={username}
         onChange={(e) => setUserName(e.target.value)}
       />
       <input
+        className="login-input"
         type="password"
         placeholder="Mật khẩu"
         value={password}
         onChange={(e) => setPassword(e.target.value)}
       />
-      <button onClick={handleLogin}>Đăng nhập</button>
+      <button className="login-button" onClick={handleLogin}>Đăng nhập</button>
     </div>
   );
 }

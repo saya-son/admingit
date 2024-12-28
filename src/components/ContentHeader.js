@@ -6,10 +6,10 @@ export const ContentHeader = () => {
     <div className='content--header'>
         <h1 className='header--title'>Education</h1>
         <div className='header--activity'>
-            <div className='search-box'>
+            {/* <div className='search-box'>
                 <input type='text' placeholder='Search here...'/>
                 <BiSearch className='icon' />
-            </div>
+            </div> */}
 
             <div className='notify'>
                 <BiNotification className='icon'/>

@@ -16,8 +16,12 @@ export default function AddUser() {
     const addUser = async (e) => {
         e.preventDefault();
         try {
-            await axios.post('http://localhost:8080/public/admin/add/users', newUser, {
-                headers: { 'Content-Type': 'application/json' },
+            const token = localStorage.getItem('token'); // Lấy token từ localStorage hoặc nơi bạn lưu trữ token
+            await axios.post('http://localhost:8080/admin/add/users', newUser, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`, // Thêm Bearer Token vào header
+                },
             });
             alert('Thêm người dùng thành công!');
             navigate('/admin/users'); // Điều hướng đến trang quản lý user

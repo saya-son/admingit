@@ -4,7 +4,7 @@ import Profile from './components/Profile';
 import Sidebar from './components/Sidebar';
 
 function App() {
-  return (
+  return (   
     <div className='dashboard'>
       <Sidebar />
       <div className='dashboard--content'>

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import axios from '../../Api/userApi';
+import axios from '../../Api/userApi'; // Sử dụng axios đã cấu hình từ file axios.js
 import { useParams, useNavigate } from 'react-router-dom';
 
 export default function UpdateQuestion() {
@@ -11,7 +11,12 @@ export default function UpdateQuestion() {
         // Lấy dữ liệu câu hỏi
         const fetchQuestion = async () => {
             try {
-                const response = await axios.get(`/public/admin/questions/${questionId}`);
+                const token = localStorage.getItem('token'); // Lấy token từ localStorage
+                const response = await axios.get(`/admin/questions/${questionId}`, {
+                    headers: {
+                        Authorization: token ? `Bearer ${token}` : '',
+                    },
+                });
                 setQuestion(response.data);
             } catch (error) {
                 console.error('Error fetching question:', error);
@@ -35,9 +40,14 @@ export default function UpdateQuestion() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            await axios.patch(`/public/admin/questions/${questionId}`, question);
+            const token = localStorage.getItem('token'); // Lấy token từ localStorage
+            await axios.patch(`/admin/questions/${questionId}`, question, {
+                headers: {
+                    Authorization: token ? `Bearer ${token}` : '',
+                },
+            });
             alert('Cập nhật câu hỏi thành công!');
-            navigate('/public/chapter/questions'); // Chuyển hướng về trang danh sách câu hỏi
+            navigate('/chapter/questions'); // Chuyển hướng về trang danh sách câu hỏi
         } catch (error) {
             console.error('Error updating question:', error);
             alert('Không thể cập nhật câu hỏi!');
@@ -45,7 +55,7 @@ export default function UpdateQuestion() {
     };
 
     const handleCancel = () => {
-        navigate('/public/chapter/questions'); // Quay lại trang danh sách câu hỏi
+        navigate('/chapter/questions'); // Quay lại trang danh sách câu hỏi
     };
 
     if (!question) {

@@ -34,7 +34,7 @@ export default function GetUser() {
     const deleteUser = async (userId) => {
         try {
             console.log(`Xóa người dùng với ID: ${userId}`);
-            await axiosInstance.delete(`http://localhost:8080/public/admin/delete/users/${userId}`);
+            await axiosInstance.delete(`http://localhost:8080/admin/delete/users/${userId}`);
             setUsers((prevUsers) => prevUsers.filter((user) => user.userId !== userId));
             alert('Xóa người dùng thành công!');
         } catch (error) {
@@ -45,7 +45,7 @@ export default function GetUser() {
 
     // Hàm cập nhật người dùng
     const updateUser = (userId) => {
-        navigate(`/public/update/users/${userId}`);
+        navigate(`/update/users/${userId}`);
     };
 
     // Tính toán người dùng cho trang hiện tại
@@ -72,7 +72,7 @@ export default function GetUser() {
             {/* Nút chuyển đến trang thêm người dùng */}
             <button
                 className="btn btn-primary mb-3 float-end"
-                onClick={() => navigate(`/public/admin/add/user`)}
+                onClick={() => navigate(`/admin/add/user`)}
             >
                 Thêm User
             </button>

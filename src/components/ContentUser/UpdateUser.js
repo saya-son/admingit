@@ -7,10 +7,17 @@ export default function UpdateUser() {
     const navigate = useNavigate();
     const [user, setUser] = useState({ fullName: '', email: '', role: 'USER' });
 
+    // Lấy token từ localStorage hoặc từ nơi bạn lưu trữ token
+    const token = localStorage.getItem('token'); // Ví dụ lấy từ localStorage
+
     // Hàm lấy thông tin người dùng
     const fetchUserDetails = async () => {
         try {
-            const response = await axios.get(`http://localhost:8080/public/${userId}`); // Đảm bảo URL chính xác
+            const response = await axios.get(`http://localhost:8080/${userId}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`  // Thêm Bearer Token vào header
+                }
+            });
             setUser({
                 fullName: response.data.fullName,
                 email: response.data.email,
@@ -31,13 +38,16 @@ export default function UpdateUser() {
                 role: user.role // Gửi role thay vì mật khẩu
             };
             console.log(updatedUser);
-            await axios.patch(`http://localhost:8080/public/update/users/${userId}`, updatedUser);
+            await axios.patch(`http://localhost:8080/update/users/${userId}`, updatedUser, {
+                headers: {
+                    Authorization: `Bearer ${token}`  // Thêm Bearer Token vào header
+                }
+            });
             alert('Cập nhật thông tin người dùng thành công!');
             navigate('/admin/users'); // Quay lại trang danh sách người dùng
         } catch (error) {
             console.error('Lỗi khi cập nhật thông tin người dùng:', error.response?.data || error.message);
             alert('Không thể cập nhật thông tin người dùng!');
-            
         }
     };
 

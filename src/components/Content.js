@@ -21,7 +21,6 @@ import UpdateSubject from './ContentSubject/UpdateSubject';
 import AddUser from './ContentUser/AddUser';
 import GetUser from './ContentUser/GetUser';
 import UpdateUser from './ContentUser/UpdateUser';
-import Login from './Test/Login';
 
 export default function Content() {
   return (
@@ -32,30 +31,30 @@ export default function Content() {
           <Route path='/home' element={<ContentHome />} />
 
           <Route path='/admin/users' element={<GetUser />} />
-          <Route path='/public/admin/add/user' element={<AddUser />} />
-          <Route path='/public/update/users/:userId' element={<UpdateUser />} />
+          <Route path='/admin/add/user' element={<AddUser />} />
+          <Route path='/update/users/:userId' element={<UpdateUser />} />
 
 
-          <Route path='/public/admin/exams' element={<GetExam />} />
-          <Route path='/public/admin/add/exams' element={<AddExam />} />
+          <Route path='/admin/exams' element={<GetExam />} />
+          <Route path='/admin/add/exams' element={<AddExam />} />
 
-          <Route path='/public/subjects' element={<GetSubject />} />
-          <Route path='/public/admin/subjects/:subjectId' element={<UpdateSubject />} />
-          <Route path='/public/admin/subjects' element={<AddSubject />} />
-          <Route path='/public/subjects/:subjectId' element={<ChooseChapter />} />
-          <Route path='/public/subjects/addChapters/:subjectId' element={<AddChapterById />} />
+          <Route path='/subjects' element={<GetSubject />} />
+          <Route path='/admin/subjects/:subjectId' element={<UpdateSubject />} />
+          <Route path='/admin/subjects' element={<AddSubject />} />
+          <Route path='/subjects/:subjectId' element={<ChooseChapter />} />
+          <Route path='/subjects/addChapters/:subjectId' element={<AddChapterById />} />
           <Route path='/chapter/questions/:chapterId' element={<ChooseQuestion />} />
           <Route path='/chapter/addQuestions/:chapterId' element={<AddQuestionById />} />
 
-          <Route path='/public/subject/chapters' element={<GetChapter />} />
-          <Route path='/public/admin/add/chapter' element={<AddChapter />} />
-          <Route path='/public/admin/chapters/:chapterId' element={<UpdateChapter />} />
+          <Route path='/subject/chapters' element={<GetChapter />} />
+          <Route path='/admin/add/chapter' element={<AddChapter />} />
+          <Route path='/admin/chapters/:chapterId' element={<UpdateChapter />} />
 
-          <Route path='/public/chapter/questions' element={<GetQuestion />} />
-          <Route path='/public/admin/questions' element={<AddQuestion />} />
-          <Route path='/public/admin/questions/:questionId' element={<UpdateQuestion />} />
+          <Route path='/chapter/questions' element={<GetQuestion />} />
+          <Route path='/admin/questions' element={<AddQuestion />} />
+          <Route path='/admin/questions/:questionId' element={<UpdateQuestion />} />
 
-          <Route path='/auth/login' element={<Login />} />
+          
         </Routes>       
     </div>
   )

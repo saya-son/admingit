@@ -7,6 +7,8 @@ export default function ChooseChapter() {
     const { subjectId } = useParams(); // Lấy subjectId từ URL
     const navigate = useNavigate(); // Dùng để điều hướng
     const [chapters, setChapters] = useState([]);
+    const [filteredChapters, setFilteredChapters] = useState([]); // Dữ liệu chương sau khi lọc
+    const [searchTerm, setSearchTerm] = useState(''); // Từ khóa tìm kiếm
     const [currentPage, setCurrentPage] = useState(1); // Trang hiện tại
     const [itemsPerPage] = useState(5); // Số lượng chương trên mỗi trang
 
@@ -17,19 +19,24 @@ export default function ChooseChapter() {
         }
     }, [subjectId]);
 
+    // Lọc chương theo từ khóa
+    useEffect(() => {
+        const filtered = chapters.filter((chapter) =>
+            chapter.name.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+        setFilteredChapters(filtered);
+    }, [searchTerm, chapters]);
+
     // Hàm gọi API để lấy danh sách các chương
     const fetchChapters = async (subjectId) => {
         try {
-            const token = localStorage.getItem('token'); // Lấy token từ localStorage
-            const response = await axios.get(`http://localhost:8080/public/subject/chapters/${subjectId}`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`, // Thêm Bearer Token vào header
-                },
-            });
+            const response = await axios.get(`http://localhost:8080/public/subject/chapters/${subjectId}`);
             if (response.data && response.data.length > 0) {
                 setChapters(response.data);
+                setFilteredChapters(response.data);
             } else {
-                setChapters([]); // Trường hợp không có chương nào
+                setChapters([]);
+                setFilteredChapters([]);
                 alert('Không có chương nào cho môn học này!');
             }
         } catch (error) {
@@ -44,12 +51,7 @@ export default function ChooseChapter() {
         if (!confirmDelete) return;
 
         try {
-            const token = localStorage.getItem('token'); // Lấy token từ localStorage
-            await axios.delete(`http://localhost:8080/admin/chapters/${chapterId}`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`, // Thêm Bearer Token vào header
-                },
-            });
+            await axios.delete(`http://localhost:8080/public/admin/chapters/${chapterId}`);
             setChapters(chapters.filter((chapter) => chapter.chapterId !== chapterId));
             alert('Xóa chương thành công!');
         } catch (error) {
@@ -61,7 +63,7 @@ export default function ChooseChapter() {
     // Tính toán dữ liệu hiển thị theo trang hiện tại
     const indexOfLastItem = currentPage * itemsPerPage;
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-    const currentChapters = chapters.slice(indexOfFirstItem, indexOfLastItem);
+    const currentChapters = filteredChapters.slice(indexOfFirstItem, indexOfLastItem);
 
     return (
         <div>
@@ -69,15 +71,26 @@ export default function ChooseChapter() {
                 <h2>Danh sách chương</h2>
                 <button
                     className="btn btn-primary"
-                    onClick={() => navigate(`/subjects/addChapters/${subjectId}`)}
+                    onClick={() => navigate(`/public/subjects/addChapters/${subjectId}`)}
                 >
                     Thêm chương
                 </button>
             </div>
 
+            {/* Thanh tìm kiếm */}
+            <div className="mb-3">
+                <input
+                    type="text"
+                    className="form-control"
+                    placeholder="Tìm kiếm chương theo tên..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                />
+            </div>
+
             {/* Kiểm tra xem có chương nào không */}
-            {chapters.length === 0 ? (
-                <p>Không có chương nào cho môn học này.</p>
+            {filteredChapters.length === 0 ? (
+                <p>Không tìm thấy chương nào phù hợp.</p>
             ) : (
                 <>
                     <table className="table table-bordered">
@@ -110,7 +123,7 @@ export default function ChooseChapter() {
                                         </button>
                                         <button
                                             className="btn btn-success"
-                                            onClick={() => navigate(`/admin/chapters/${chapter.chapterId}`)}
+                                            onClick={() => navigate(`/public/admin/chapters/${chapter.chapterId}`)}
                                         >
                                             Cập nhật
                                         </button>
@@ -122,7 +135,7 @@ export default function ChooseChapter() {
 
                     {/* Thành phần Pagination */}
                     <Pagination
-                        totalPages={Math.ceil(chapters.length / itemsPerPage)}
+                        totalPages={Math.ceil(filteredChapters.length / itemsPerPage)}
                         currentPage={currentPage}
                         onPageChange={setCurrentPage}
                     />

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import axios from '../../Api/userApi';
-import { useNavigate } from 'react-router-dom'; // Để điều hướng người dùng sau khi thêm bài thi
+import { useNavigate } from 'react-router-dom';
 
 export default function AddExam() {
     const [subjectId, setSubjectId] = useState(''); // Mã môn học
@@ -20,23 +20,40 @@ export default function AddExam() {
             return;
         }
 
+        const userId = localStorage.getItem('userId'); // Lấy userId từ localStorage
+        const token = localStorage.getItem('token'); // Lấy token từ localStorage
+        console.log(userId, token);
+
+        if (!userId || !token) {
+            alert('Không tìm thấy thông tin người dùng. Vui lòng đăng nhập lại!');
+            return;
+        }
+
         setLoading(true); // Bắt đầu gửi dữ liệu
         try {
-            // Gọi API để thêm bài thi
-            const response = await axios.post('/public/admin/exams', {
-                examDto: {
-                    subjectId,
-                    title,
-                    description,
-                    duration,
-                    createdBy: 'eb3edac2-4069-4a9b-b50e-8447150dba1d', // Thông tin người tạo bài thi (có thể thay đổi theo yêu cầu)
+            // Gọi API để thêm bài thi với Bearer Token
+            const response = await axios.post(
+                '/admin/exams',
+                {
+                    examDto: {
+                        subjectId,
+                        title,
+                        description,
+                        duration,
+                        createdBy: userId, // Gán userId vào createdBy
+                    },
+                    numberOfQuestion, // Số câu hỏi từ input người dùng
                 },
-                numberOfQuestion, // Số câu hỏi từ input người dùng
-            });
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`, // Thêm Bearer Token vào headers
+                    },
+                }
+            );
 
             console.log('Thêm bài thi thành công:', response.data);
             alert('Bài thi đã được thêm thành công!');
-            navigate('/public/admin/exams'); // Điều hướng về trang danh sách bài thi sau khi thêm thành công
+            navigate('/admin/exams'); // Điều hướng về trang danh sách bài thi sau khi thêm thành công
         } catch (error) {
             console.error('Lỗi khi thêm bài thi:', error);
             alert('Không thể thêm bài thi. Vui lòng thử lại!');

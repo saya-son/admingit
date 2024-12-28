@@ -1,8 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import axiosGetQuestion from '../../Api/userApi';
+import Pagination from '../Pagination'; // Sử dụng thành phần Pagination
 
 export default function GetQuestion() {
     const [questions, setQuestions] = useState([]);
+    const [currentPage, setCurrentPage] = useState(1); // Trang hiện tại
+    const [itemsPerPage] = useState(5); // Số câu hỏi mỗi trang
 
     useEffect(() => {
         getAllQuestions();
@@ -10,8 +13,13 @@ export default function GetQuestion() {
 
     const getAllQuestions = async () => {
         try {
-            const rep = await axiosGetQuestion.get("/public/chapter/questions");
-            setQuestions(rep.data);
+            const token = localStorage.getItem('token');  // Lấy token từ localStorage hoặc cookie
+            const response = await axiosGetQuestion.get("/chapter/questions", {
+                headers: {
+                    'Authorization': `Bearer ${token}`,  // Thêm Bearer Token vào header
+                }
+            });
+            setQuestions(response.data);
         } catch (error) {
             console.error("Error fetching questions:", error);
         }
@@ -21,9 +29,14 @@ export default function GetQuestion() {
         const confirmDelete = window.confirm("Bạn có chắc chắn muốn xóa câu hỏi này?");
         if (confirmDelete) {
             try {
-                await axiosGetQuestion.delete(`/public/admin/questions/${questionId}`);
+                const token = localStorage.getItem('token');
+                await axiosGetQuestion.delete(`/admin/questions/${questionId}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                    }
+                });
                 alert("Xóa câu hỏi thành công!");
-                setQuestions(questions.filter((question) => question.questionId !== questionId));
+                setQuestions((prevQuestions) => prevQuestions.filter((question) => question.questionId !== questionId));
             } catch (error) {
                 console.error("Error deleting question:", error);
                 alert("Không thể xóa câu hỏi!");
@@ -41,7 +54,12 @@ export default function GetQuestion() {
         return columns;
     };
 
-    const elementQuestion = questions.map((item) => (
+    // Tính toán dữ liệu hiển thị theo trang hiện tại
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    const currentQuestions = questions.slice(indexOfFirstItem, indexOfLastItem);
+
+    const elementQuestion = currentQuestions.map((item) => (
         <tr key={item.questionId}>
             <td>{item.questionId}</td>
             <td>{item.content}</td>
@@ -60,7 +78,7 @@ export default function GetQuestion() {
                 </button>
                 <button
                     className="btn btn-success mx-1"
-                    onClick={() => window.location.href = `/public/admin/questions/${item.questionId}`}
+                    onClick={() => window.location.href = `/admin/questions/${item.questionId}`}
                 >
                     Cập nhật
                 </button>
@@ -74,7 +92,7 @@ export default function GetQuestion() {
                 <h2>Quản lý câu hỏi</h2>
                 <button
                     className="btn btn-primary"
-                    onClick={() => window.location.href = "/public/admin/questions"}
+                    onClick={() => window.location.href = "/admin/questions"}
                 >
                     Thêm Câu Hỏi
                 </button>
@@ -91,13 +109,20 @@ export default function GetQuestion() {
                         <th>Đáp án C</th>
                         <th>Đáp án D</th>
                         <th>Đáp án đúng</th>
-                        <th>Action</th>
+                        <th>Thao tác</th>
                     </tr>
                 </thead>
                 <tbody>
                     {elementQuestion}
                 </tbody>
             </table>
+
+            {/* Thành phần Pagination */}
+            <Pagination
+                totalPages={Math.ceil(questions.length / itemsPerPage)}
+                currentPage={currentPage}
+                onPageChange={setCurrentPage}
+            />
         </div>
     );
 }

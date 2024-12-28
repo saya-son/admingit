@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import axios from '../../Api/userApi';
+import axios from '../../Api/userApi'; // Đảm bảo axios đã được cấu hình đúng cho API
 import { useNavigate, useParams } from 'react-router-dom';
 
 export default function AddQuestionById() {
@@ -13,6 +13,9 @@ export default function AddQuestionById() {
         { content: '', isCorrect: false },
     ]);
     const navigate = useNavigate();
+
+    // Lấy token từ localStorage hoặc từ nơi bạn lưu trữ token
+    const token = localStorage.getItem('token'); // Ví dụ lấy từ localStorage
 
     const handleAnswerChange = (index, field, value) => {
         const updatedAnswers = [...answers];
@@ -31,9 +34,14 @@ export default function AddQuestionById() {
                 answers,
             };
 
-            await axios.post("/public/admin/questions", newQuestion);
+            // Thêm Bearer Token vào header của yêu cầu API
+            await axios.post("/admin/questions", newQuestion, {
+                headers: {
+                    Authorization: `Bearer ${token}`, // Thêm Bearer Token vào header
+                }
+            });
             alert("Thêm câu hỏi thành công!");
-            navigate(`/public/chapter/questions`);
+            navigate(`/chapter/questions/${chapterId}`);
         } catch (error) {
             console.error("Error adding question:", error);
             alert("Không thể thêm câu hỏi!");

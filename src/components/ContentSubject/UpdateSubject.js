@@ -14,7 +14,14 @@ export default function UpdateSubject() {
 
     const getSubjectDetails = async () => {
         try {
-            const res = await axiosGetSubject.get(`/public/subjects/${subjectId}`);
+            // Lấy Bearer Token từ localStorage
+            const token = localStorage.getItem('token');
+
+            const res = await axiosGetSubject.get(`/subjects/${subjectId}`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`, // Thêm Bearer Token vào header
+                }
+            });
             setSubject(res.data);
         } catch (error) {
             alert('Không thể lấy thông tin môn học!');
@@ -24,9 +31,16 @@ export default function UpdateSubject() {
     // Cập nhật thông tin môn học
     const handleUpdate = async () => {
         try {
-            await axiosGetSubject.patch(`/public/admin/subjects/${subjectId}`, subject);
+            // Lấy Bearer Token từ localStorage
+            const token = localStorage.getItem('token');
+
+            await axiosGetSubject.patch(`/admin/subjects/${subjectId}`, subject, {
+                headers: {
+                    'Authorization': `Bearer ${token}`, // Thêm Bearer Token vào header
+                }
+            });
             alert('Môn học đã được cập nhật thành công!');
-            navigate('/public/subjects');
+            navigate('/subjects');
         } catch (error) {
             alert('Không thể cập nhật môn học!');
         }
@@ -69,7 +83,7 @@ export default function UpdateSubject() {
                 <button
                     type="button"
                     className="btn btn-secondary mx-2"
-                    onClick={() => navigate('/public/subjects')}
+                    onClick={() => navigate('/subjects')}
                 >
                     Hủy
                 </button>

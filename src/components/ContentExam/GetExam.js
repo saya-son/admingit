@@ -1,47 +1,51 @@
 import React, { useEffect, useState } from 'react';
 import axiosGetExam from '../../Api/userApi';
 import { useNavigate } from 'react-router-dom';
+import Pagination from '../Pagination'; // Sử dụng thành phần Pagination đã tạo
 
 export default function GetExam() {
     const [exams, setExams] = useState([]); // Lưu danh sách bài thi
-    const navigate = useNavigate(); // Sử dụng useNavigate để chuyển hướng
+    const [currentPage, setCurrentPage] = useState(1); // Trang hiện tại
+    const [itemsPerPage] = useState(5); // Số bài thi hiển thị trên mỗi trang
+    const navigate = useNavigate();
 
     useEffect(() => {
         getAllExams();
-    }, []); // Thêm dependency [] để tránh gọi API lặp lại.
+    }, []);
 
-    // Hàm gọi dữ liệu từ API
     const getAllExams = async () => {
         try {
             const response = await axiosGetExam.get("/public/admin/exams");
-            console.log('Response data: ', response.data);
             setExams(response.data); // Lưu dữ liệu vào state
         } catch (error) {
             console.error('Error fetching exams: ', error);
         }
     };
 
+    // Tính toán các bài thi hiển thị trên trang hiện tại
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    const currentExams = exams.slice(indexOfFirstItem, indexOfLastItem);
+
     // Render dữ liệu ra bảng
-    const elementExams = exams.map((item, index) => {
-        return (
-            <tr key={index}>
-                <td>{item.subjectId}</td> {/* Mã môn học */}
-                <td>{item.title}</td> {/* Tên đề thi */}
-                <td>{item.description}</td> {/* Mô tả đề thi */}
-                <td>{item.duration} phút</td> {/* Thời gian */}
-                <td>{item.questions.length} câu hỏi</td> {/* Số câu hỏi */}
-            </tr>
-        );
-    });
+    const elementExams = currentExams.map((item, index) => (
+        <tr key={index}>
+            <td>{item.subjectId}</td> {/* Mã môn học */}
+            <td>{item.title}</td> {/* Tên đề thi */}
+            <td>{item.description}</td> {/* Mô tả đề thi */}
+            <td>{item.duration} phút</td> {/* Thời gian */}
+            <td>{item.questions.length} câu hỏi</td> {/* Số câu hỏi */}
+        </tr>
+    ));
 
     return (
         <div>
             <h2>Quản lý bài thi</h2>
-            
+
             {/* Nút "Thêm bài thi" góc trên bên phải */}
             <button
                 className="btn btn-primary mb-3 float-end"
-                onClick={() => navigate('/public/admin/add/exams')}
+                onClick={() => navigate('/admin/add/exams')}
             >
                 Thêm bài thi
             </button>
@@ -60,6 +64,13 @@ export default function GetExam() {
                     {elementExams}
                 </tbody>
             </table>
+
+            {/* Phân trang */}
+            <Pagination
+                totalPages={Math.ceil(exams.length / itemsPerPage)} // Tổng số trang
+                currentPage={currentPage} // Trang hiện tại
+                onPageChange={setCurrentPage} // Hàm thay đổi trang
+            />
         </div>
     );
 }

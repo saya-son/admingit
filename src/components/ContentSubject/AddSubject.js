@@ -13,13 +13,19 @@ export default function AddSubject() {
     const addSubject = async (e) => {
         e.preventDefault();
         try {
-            const response = await axiosGetSubject.post("/public/admin/subjects", newSubject);
+            const token = localStorage.getItem('token'); // Lấy token từ localStorage hoặc nơi bạn lưu trữ token
+            const response = await axiosGetSubject.post("/admin/subjects", newSubject, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`, // Thêm Bearer Token vào header
+                },
+            });
             console.log('Thêm môn học thành công: ', response.data);
             setNewSubject({
                 name: '',
                 description: ''
             });
-            navigate('/public/subjects'); // Quay về trang danh sách môn học sau khi thêm
+            navigate('/subjects'); // Quay về trang danh sách môn học sau khi thêm
         } catch (error) {
             console.error('Lỗi khi thêm môn học: ', error);
             alert('Không thể thêm môn học!');
@@ -50,7 +56,7 @@ export default function AddSubject() {
                     />
                 </div>
                 <button type="submit" className="btn btn-success">Lưu</button>
-                <button type="button" className="btn btn-secondary mx-2" onClick={() => navigate('/public/subjects')}>Hủy</button>
+                <button type="button" className="btn btn-secondary mx-2" onClick={() => navigate('/subjects')}>Hủy</button>
             </form>
         </div>
     );
